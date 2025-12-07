@@ -23,39 +23,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
-interface User {
-  id?: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  user_role: "Admin" | "Pmanager" | "Imanager" | "User";
-  user_status: "Active" | "Inactive" | "Suspended";
-  mobile?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  document_type?: string;
-  document_number?: string;
-  dob?: string;
-  profile_photo?: string;
-}
-
-interface UserFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (userData: User) => Promise<void>;
-  editingUser?: User | null;
-  isLoading?: boolean;
-}
-
 export function UserForm({
   isOpen,
   onClose,
   onSubmit,
   editingUser,
   isLoading = false,
-}: UserFormProps) {
-  const [formData, setFormData] = useState<User>({
+}) {
+  const [formData, setFormData] = useState({
     email: "",
     first_name: "",
     last_name: "",
@@ -71,10 +46,10 @@ export function UserForm({
     profile_photo: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const [originalProfilePhoto, setOriginalProfilePhoto] = useState<string>("");
+  const [errors, setErrors] = useState({});
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [originalProfilePhoto, setOriginalProfilePhoto] = useState("");
 
   useEffect(() => {
     if (editingUser) {
@@ -108,8 +83,8 @@ export function UserForm({
     setOriginalProfilePhoto("");
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
@@ -139,7 +114,7 @@ export function UserForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -158,13 +133,13 @@ export function UserForm({
       setProfileImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -181,7 +156,7 @@ export function UserForm({
         const filePath = `${fileName}`;
 
         // Use "avatars" bucket as specified in the setup guide
-        const { error: uploadError } = await (supabase as any).storage
+        const { error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(filePath, profileImageFile);
 
@@ -201,7 +176,7 @@ export function UserForm({
 
         const {
           data: { publicUrl },
-        } = (supabase as any).storage.from("avatars").getPublicUrl(filePath);
+        } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
         profilePhotoUrl = publicUrl;
       } else if (editingUser) {
@@ -229,7 +204,7 @@ export function UserForm({
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save user. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         if (error.message.includes("duplicate key")) {
           errorMessage = "A user with this email already exists.";
         } else if (error.message.includes("storage")) {
@@ -244,7 +219,7 @@ export function UserForm({
     }
   };
 
-  const handleInputChange = (field: keyof User, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));

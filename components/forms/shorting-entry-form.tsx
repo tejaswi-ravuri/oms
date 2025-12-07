@@ -22,36 +22,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, Plus, Trash2 } from "lucide-react";
-import {
-  ShortingEntry,
-  ShortingEntryFormData,
-  WeaverChallan,
-  Purchase,
-} from "@/types/production";
+
 import { createClient } from "@/lib/supabase/client";
-
-// interface ShortingEntryFormProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   onSubmit: (entryData: ShortingEntryFormData) => Promise<void>;
-//   editingEntry?: ShortingEntry | null;
-//   isLoading?: boolean;
-// }
-interface ShortingEntryFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (entryData: ShortingEntryFormData) => Promise<void>;
-  editingEntry?: ShortingEntry | null;
-  isLoading?: boolean;
-
-  weaverChallans: WeaverChallan[]; // add
-  purchases: Purchase[]; // add
-}
-
-interface SizeBreakdown {
-  size: string;
-  quantity: number;
-}
 
 export function ShortingEntryForm({
   isOpen,
@@ -59,15 +31,13 @@ export function ShortingEntryForm({
   onSubmit,
   editingEntry,
   isLoading = false,
-}: ShortingEntryFormProps) {
-  const [weaverChallansList, setWeaverChallansList] = useState<WeaverChallan[]>(
-    []
-  );
-  const [purchasesList, setPurchasesList] = useState<Purchase[]>([]);
+}) {
+  const [weaverChallansList, setWeaverChallansList] = useState([]);
+  const [purchasesList, setPurchasesList] = useState([]);
   const [loadingWeaverChallans, setLoadingWeaverChallans] = useState(false);
   const [loadingPurchases, setLoadingPurchases] = useState(false);
 
-  const [formData, setFormData] = useState<ShortingEntryFormData>({
+  const [formData, setFormData] = useState({
     entry_date: "",
     entry_no: "",
     weaver_challan_id: undefined,
@@ -82,8 +52,8 @@ export function ShortingEntryForm({
     remarks: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [sizeBreakdown, setSizeBreakdown] = useState<SizeBreakdown[]>([
+  const [errors, setErrors] = useState({});
+  const [sizeBreakdown, setSizeBreakdown] = useState([
     { size: "", quantity: 0 },
   ]);
 
@@ -198,8 +168,8 @@ export function ShortingEntryForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.entry_date) {
       newErrors.entry_date = "Entry date is required";
@@ -230,7 +200,7 @@ export function ShortingEntryForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -239,7 +209,7 @@ export function ShortingEntryForm({
 
     try {
       // Convert size breakdown array to object
-      const sizeBreakdownObj: Record<string, number> = {};
+      const sizeBreakdownObj = {};
       sizeBreakdown.forEach((item) => {
         if (item.size && item.quantity > 0) {
           sizeBreakdownObj[item.size] = item.quantity;
@@ -260,11 +230,11 @@ export function ShortingEntryForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save shorting entry. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         if (error.message.includes("duplicate key")) {
           errorMessage = "An entry with this number already exists.";
         } else {
@@ -279,10 +249,7 @@ export function ShortingEntryForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof ShortingEntryFormData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {
@@ -290,7 +257,7 @@ export function ShortingEntryForm({
     }
   };
 
-  const handleWeaverChallanChange = (challanId: string) => {
+  const handleWeaverChallanChange = (challanId) => {
     const challan = weaverChallansList.find((c) => c.id === Number(challanId));
     if (challan) {
       setFormData((prev) => ({
@@ -302,7 +269,7 @@ export function ShortingEntryForm({
     }
   };
 
-  const handlePurchaseChange = (purchaseId: string) => {
+  const handlePurchaseChange = (purchaseId) => {
     const purchase = purchasesList.find((p) => p.id === Number(purchaseId));
     if (purchase) {
       setFormData((prev) => ({
@@ -317,18 +284,14 @@ export function ShortingEntryForm({
     setSizeBreakdown([...sizeBreakdown, { size: "", quantity: 0 }]);
   };
 
-  const removeSizeBreakdownRow = (index: number) => {
+  const removeSizeBreakdownRow = (index) => {
     const newBreakdown = sizeBreakdown.filter((_, i) => i !== index);
     setSizeBreakdown(
       newBreakdown.length > 0 ? newBreakdown : [{ size: "", quantity: 0 }]
     );
   };
 
-  const updateSizeBreakdown = (
-    index: number,
-    field: keyof SizeBreakdown,
-    value: string | number
-  ) => {
+  const updateSizeBreakdown = (index, field, value) => {
     const newBreakdown = [...sizeBreakdown];
     newBreakdown[index] = {
       ...newBreakdown[index],

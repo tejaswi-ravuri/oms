@@ -15,47 +15,15 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-// TypeScript types
-type Profile = {
-  id: string;
-  user_role:
-    | "Admin"
-    | "Inventory Manager"
-    | "Production Manager"
-    | "Order Managing Executive";
-  user_status: string;
-  full_name?: string;
-  email?: string;
-};
-
-interface SidebarProps {
-  profile: Partial<Profile>;
-  isOpen: boolean;
-  onClose: () => void;
-  isMinimized?: boolean;
-  onToggleMinimize?: () => void;
-}
-
-interface MenuItem {
-  title: string;
-  icon: React.ReactNode;
-  href?: string;
-  items?: {
-    title: string;
-    href: string;
-  }[];
-  badge?: string;
-}
-
 export function Sidebar({
   profile,
   isOpen,
   onClose,
   isMinimized = false,
   onToggleMinimize,
-}: SidebarProps) {
+}) {
   const pathname = usePathname();
-  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const [expandedMenus, setExpandedMenus] = useState([]);
 
   // Auto-expand menu based on current pathname
   useEffect(() => {
@@ -63,7 +31,7 @@ export function Sidebar({
     const currentModule = pathSegments[2]; // /dashboard/module/...
 
     if (currentModule) {
-      const menuMap: Record<string, string> = {
+      const menuMap = {
         inventory: "Inventory",
         Inventory: "Inventory", // Handle both cases
         production: "Production",
@@ -81,7 +49,7 @@ export function Sidebar({
     }
   }, [pathname]);
 
-  const toggleMenu = (menuTitle: string) => {
+  const toggleMenu = (menuTitle) => {
     setExpandedMenus((prev) =>
       prev.includes(menuTitle)
         ? prev.filter((m) => m !== menuTitle)
@@ -89,7 +57,7 @@ export function Sidebar({
     );
   };
 
-  const menuItems: MenuItem[] = [
+  const menuItems = [
     {
       title: "Dashboard",
       icon: <LayoutDashboard className="h-5 w-5" />,

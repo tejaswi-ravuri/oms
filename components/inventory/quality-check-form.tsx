@@ -28,47 +28,24 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
-import { Database } from "@/types/database";
 import toast from "react-hot-toast";
-
-type Product = Database["public"]["Tables"]["products"]["Row"];
-
-interface QualityCheckFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedProducts: Product[];
-  onRefresh: () => void;
-}
-
-interface QCParameter {
-  name: string;
-  value: string | number;
-  status: "pass" | "fail" | "na";
-  notes?: string;
-}
-
-interface QualityCheckData {
-  qcStatus: string;
-  qcNotes?: string;
-  qcParameters?: QCParameter[];
-}
 
 export function QualityCheckForm({
   isOpen,
   onClose,
   selectedProducts,
   onRefresh,
-}: QualityCheckFormProps) {
+}) {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [qcData, setQcData] = useState<QualityCheckData>({
+  const [qcData, setQcData] = useState({
     qcStatus: "pending",
     qcNotes: "",
     qcParameters: [],
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   // Default QC parameters
-  const defaultQCParameters: QCParameter[] = [
+  const defaultQCParameters = [
     { name: "Visual Inspection", value: "", status: "na" },
     { name: "Dimensions", value: "", status: "na" },
     { name: "Weight", value: "", status: "na" },
@@ -91,8 +68,8 @@ export function QualityCheckForm({
     }
   }, [isOpen]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!qcData.qcStatus) {
       newErrors.qcStatus = "QC status is required";
@@ -153,7 +130,7 @@ export function QualityCheckForm({
         onRefresh();
         onClose();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("QC update error:", error);
       toast.error(error.message || "Failed to update QC status");
     } finally {
@@ -161,10 +138,7 @@ export function QualityCheckForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof QualityCheckData,
-    value: string | QCParameter[]
-  ) => {
+  const handleInputChange = (field, value) => {
     setQcData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {
@@ -172,11 +146,7 @@ export function QualityCheckForm({
     }
   };
 
-  const handleParameterChange = (
-    index: number,
-    field: keyof QCParameter,
-    value: string | number
-  ) => {
+  const handleParameterChange = (index, field, value) => {
     const updatedParameters = [...(qcData.qcParameters || [])];
     updatedParameters[index] = {
       ...updatedParameters[index],
@@ -185,7 +155,7 @@ export function QualityCheckForm({
     handleInputChange("qcParameters", updatedParameters);
   };
 
-  const getQCStatusIcon = (status: string) => {
+  const getQCStatusIcon = (status) => {
     switch (status) {
       case "passed":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -198,7 +168,7 @@ export function QualityCheckForm({
     }
   };
 
-  const getParameterStatusIcon = (status: string) => {
+  const getParameterStatusIcon = (status) => {
     switch (status) {
       case "pass":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -248,11 +218,9 @@ export function QualityCheckForm({
                       <td className="px-3 py-2">{product.product_category}</td>
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-1">
-                          {getQCStatusIcon(
-                            (product as any).qc_status || "pending"
-                          )}
+                          {getQCStatusIcon(product.qc_status || "pending")}
                           <span className="capitalize">
-                            {(product as any).qc_status || "pending"}
+                            {product.qc_status || "pending"}
                           </span>
                         </div>
                       </td>

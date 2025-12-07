@@ -22,15 +22,6 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, Upload, X, Building2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import { Ledger, LedgerInsert, LedgerUpdate } from "@/types/production";
-
-interface LedgerFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (ledgerData: LedgerInsert | LedgerUpdate) => Promise<void>;
-  editingLedger?: Ledger | null;
-  isLoading?: boolean;
-}
 
 export function LedgerForm({
   isOpen,
@@ -38,8 +29,8 @@ export function LedgerForm({
   onSubmit,
   editingLedger,
   isLoading = false,
-}: LedgerFormProps) {
-  const [formData, setFormData] = useState<LedgerInsert>({
+}) {
+  const [formData, setFormData] = useState({
     business_name: "",
     contact_person_name: "",
     mobile_number: "",
@@ -55,9 +46,9 @@ export function LedgerForm({
     business_logo: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [errors, setErrors] = useState({});
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
 
   useEffect(() => {
     if (editingLedger) {
@@ -103,8 +94,8 @@ export function LedgerForm({
     setLogoPreview("");
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.business_name.trim()) {
       newErrors.business_name = "Business name is required";
@@ -164,7 +155,7 @@ export function LedgerForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -183,13 +174,13 @@ export function LedgerForm({
       setLogoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
+        setLogoPreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -229,13 +220,13 @@ export function LedgerForm({
         logoUrl = publicUrl;
       }
 
-      const submitData: LedgerInsert | LedgerUpdate = {
+      const submitData = {
         ...formData,
         business_logo: logoUrl,
       };
 
       if (editingLedger) {
-        (submitData as LedgerUpdate).ledger_id = editingLedger.ledger_id;
+        submitData.ledger_id = editingLedger.ledger_id;
       }
 
       await onSubmit(submitData);
@@ -252,7 +243,7 @@ export function LedgerForm({
     }
   };
 
-  const handleInputChange = (field: keyof LedgerInsert, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));

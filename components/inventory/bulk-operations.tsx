@@ -16,22 +16,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Download, Upload, Loader2, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface BulkOperationsProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onRefresh: () => void;
-}
-
-export function BulkOperations({
-  isOpen,
-  onClose,
-  onRefresh,
-}: BulkOperationsProps) {
+export function BulkOperations({ isOpen, onClose, onRefresh }) {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importResult, setImportResult] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleExportCSV = async () => {
     setIsExporting(true);
@@ -58,7 +48,7 @@ export function BulkOperations({
       document.body.removeChild(a);
 
       toast.success("Products exported successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Export error:", error);
       toast.error(error.message || "Failed to export products");
     } finally {
@@ -84,13 +74,13 @@ Sample Product,SKU-001,Clothing,T-Shirts,L,Red,A comfortable red t-shirt,Cotton,
       document.body.removeChild(a);
 
       toast.success("Template downloaded successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Template download error:", error);
       toast.error("Failed to download template");
     }
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.name.endsWith(".csv")) {
@@ -140,7 +130,7 @@ Sample Product,SKU-001,Clothing,T-Shirts,L,Red,A comfortable red t-shirt,Cotton,
         toast.success(`Successfully imported ${result.imported} products!`);
         onRefresh();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Import error:", error);
       toast.error(error.message || "Failed to import products");
     } finally {
@@ -270,13 +260,11 @@ Sample Product,SKU-001,Clothing,T-Shirts,L,Red,A comfortable red t-shirt,Cotton,
                         Import completed with errors:
                       </p>
                       <div className="max-h-32 overflow-y-auto">
-                        {importResult.details.map(
-                          (error: string, index: number) => (
-                            <p key={index} className="text-sm">
-                              {error}
-                            </p>
-                          )
-                        )}
+                        {importResult.details.map((error, index) => (
+                          <p key={index} className="text-sm">
+                            {error}
+                          </p>
+                        ))}
                       </div>
                     </div>
                   </AlertDescription>

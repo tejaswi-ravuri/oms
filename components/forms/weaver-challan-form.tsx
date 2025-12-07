@@ -23,22 +23,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import {
-  WeaverChallan,
-  WeaverChallanFormData,
-  Ledger,
-  Purchase,
-} from "@/types/production";
-
-interface WeaverChallanFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (challanData: WeaverChallanFormData) => Promise<void>;
-  editingChallan?: WeaverChallan | null;
-  isLoading?: boolean;
-  weavers: Ledger[];
-  purchases: Purchase[];
-}
 
 export function WeaverChallanForm({
   isOpen,
@@ -48,12 +32,12 @@ export function WeaverChallanForm({
   isLoading = false,
   weavers = [],
   purchases = [],
-}: WeaverChallanFormProps) {
-  const [weaversList, setWeaversList] = useState<Ledger[]>(weavers);
-  const [purchasesList, setPurchasesList] = useState<Purchase[]>(purchases);
+}) {
+  const [weaversList, setWeaversList] = useState(weavers);
+  const [purchasesList, setPurchasesList] = useState(purchases);
   const [loadingWeavers, setLoadingWeavers] = useState(false);
   const [loadingPurchases, setLoadingPurchases] = useState(false);
-  const [formData, setFormData] = useState<WeaverChallanFormData>({
+  const [formData, setFormData] = useState({
     challan_no: "",
     challan_date: "",
     purchase_id: undefined,
@@ -73,7 +57,7 @@ export function WeaverChallanForm({
     taka: 0,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   // Fetch weavers and purchases when dialog opens
   useEffect(() => {
@@ -176,8 +160,8 @@ export function WeaverChallanForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.challan_date) {
       newErrors.challan_date = "Challan date is required";
@@ -227,7 +211,7 @@ export function WeaverChallanForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -250,11 +234,11 @@ export function WeaverChallanForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save weaver challan. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         if (error.message.includes("duplicate key")) {
           errorMessage = "A challan with this number already exists.";
         } else {
@@ -269,10 +253,7 @@ export function WeaverChallanForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof WeaverChallanFormData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Auto-calculate vendor amount when rate or received quantity changes
@@ -295,7 +276,7 @@ export function WeaverChallanForm({
     }
   };
 
-  const handlePurchaseChange = (purchaseId: string) => {
+  const handlePurchaseChange = (purchaseId) => {
     const purchase = purchases.find((p) => p.id === Number(purchaseId));
     if (purchase) {
       setFormData((prev) => ({
@@ -528,9 +509,7 @@ export function WeaverChallanForm({
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: any) =>
-                  handleInputChange("status", value)
-                }
+                onValueChange={(value) => handleInputChange("status", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />

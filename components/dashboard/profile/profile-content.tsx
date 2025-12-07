@@ -34,15 +34,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface ProfileContentProps {
-  profile: any;
-  userId: string;
-}
-
-export function ProfileContent({
-  profile: initialProfile,
-  userId,
-}: ProfileContentProps) {
+export function ProfileContent({ profile: initialProfile, userId }) {
   const [profile, setProfile] = useState(initialProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -63,11 +55,11 @@ export function ProfileContent({
     dob: initialProfile.dob || "",
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -100,9 +92,9 @@ export function ProfileContent({
       }
 
       setPreviewUrl(result.url);
-      setProfile((prev: any) => ({ ...prev, profile_photo: result.url }));
+      setProfile((prev) => ({ ...prev, profile_photo: result.url }));
       toast.success("Avatar updated successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error uploading avatar:", error);
       toast.error(error.message || "Failed to upload avatar");
     } finally {
@@ -131,7 +123,7 @@ export function ProfileContent({
       setProfile(result.profile);
       toast.success("Profile updated successfully!");
       setIsEditing(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(error.message || "Failed to update profile");
     } finally {
@@ -155,8 +147,8 @@ export function ProfileContent({
     setIsEditing(false);
   };
 
-  const getRoleBadgeColor = (role: string | null) => {
-    const roleColors: Record<string, string> = {
+  const getRoleBadgeColor = (role) => {
+    const roleColors = {
       Admin: "bg-purple-100 text-purple-800",
       Pmanager: "bg-blue-100 text-blue-800",
       Imanager: "bg-green-100 text-green-800",
@@ -165,7 +157,7 @@ export function ProfileContent({
     return roleColors[role || ""] || "bg-gray-100 text-gray-800";
   };
 
-  const getStatusBadgeColor = (status: string | null) => {
+  const getStatusBadgeColor = (status) => {
     return status === "Active"
       ? "bg-green-100 text-green-800"
       : "bg-red-100 text-red-800";

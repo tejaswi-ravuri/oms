@@ -23,20 +23,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Database } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
-
-type Product = Database["public"]["Tables"]["products"]["Row"];
-type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
-
-interface ProductFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (productData: ProductInsert) => Promise<void>;
-  editingProduct?: Product | null;
-  isLoading?: boolean;
-}
 
 export function ProductForm({
   isOpen,
@@ -44,9 +32,9 @@ export function ProductForm({
   onSubmit,
   editingProduct,
   isLoading = false,
-}: ProductFormProps) {
+}) {
   const router = useRouter();
-  const [formData, setFormData] = useState<ProductInsert>({
+  const [formData, setFormData] = useState({
     product_name: "",
     product_sku: "",
     product_category: "",
@@ -66,10 +54,10 @@ export function ProductForm({
     original_manufacturing_cost: 0,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [categories, setCategories] = useState<string[]>([]);
-  const [materials, setMaterials] = useState<string[]>([]);
-  const [colors, setColors] = useState<string[]>([]);
+  const [errors, setErrors] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [colors, setColors] = useState([]);
 
   // Fetch existing data for dropdowns
   useEffect(() => {
@@ -180,8 +168,8 @@ export function ProductForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.product_name?.trim()) {
       newErrors.product_name = "Product name is required";
@@ -199,23 +187,17 @@ export function ProductForm({
       newErrors.product_qty = "Quantity cannot be negative";
     }
 
-    if (
-      (formData as any).manufacturing_cost &&
-      (formData as any).manufacturing_cost < 0
-    ) {
+    if (formData.manufacturing_cost && formData.manufacturing_cost < 0) {
       newErrors.manufacturing_cost = "Manufacturing cost cannot be negative";
     }
 
-    if (
-      (formData as any).refurbished_cost &&
-      (formData as any).refurbished_cost < 0
-    ) {
+    if (formData.refurbished_cost && formData.refurbished_cost < 0) {
       newErrors.refurbished_cost = "Refurbished cost cannot be negative";
     }
 
     if (
-      (formData as any).original_manufacturing_cost &&
-      (formData as any).original_manufacturing_cost < 0
+      formData.original_manufacturing_cost &&
+      formData.original_manufacturing_cost < 0
     ) {
       newErrors.original_manufacturing_cost =
         "Original manufacturing cost cannot be negative";
@@ -225,7 +207,7 @@ export function ProductForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -244,11 +226,11 @@ export function ProductForm({
           ? "Product updated successfully!"
           : "Product created successfully!"
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save product. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         if (error.message.includes("duplicate key")) {
           errorMessage = "A product with this SKU already exists.";
         } else {
@@ -264,10 +246,7 @@ export function ProductForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof ProductInsert,
-    value: string | number | boolean | null
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {

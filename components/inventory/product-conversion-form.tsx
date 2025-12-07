@@ -28,36 +28,16 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { Database } from "@/types/database";
 import toast from "react-hot-toast";
-
-type Product = Database["public"]["Tables"]["products"]["Row"];
-
-interface ProductConversionFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedProducts: Product[];
-  onRefresh: () => void;
-}
-
-interface ConversionData {
-  selling_price?: number;
-  reorder_level?: number;
-  max_stock?: number;
-  location?: string;
-  inventory_classification?: "good" | "bad" | "wastage" | "unclassified";
-  quality_grade?: string;
-  notes?: string;
-}
 
 export function ProductConversionForm({
   isOpen,
   onClose,
   selectedProducts,
   onRefresh,
-}: ProductConversionFormProps) {
+}) {
   const [isConverting, setIsConverting] = useState(false);
-  const [conversionData, setConversionData] = useState<ConversionData>({
+  const [conversionData, setConversionData] = useState({
     selling_price: 0,
     reorder_level: 10,
     max_stock: 100,
@@ -66,7 +46,7 @@ export function ProductConversionForm({
     quality_grade: "A",
     notes: "",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -84,8 +64,8 @@ export function ProductConversionForm({
     }
   }, [isOpen]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (conversionData.selling_price && conversionData.selling_price <= 0) {
       newErrors.selling_price = "Selling price must be greater than 0";
@@ -152,7 +132,7 @@ export function ProductConversionForm({
         onRefresh();
         onClose();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Conversion error:", error);
       toast.error(error.message || "Failed to convert products");
     } finally {
@@ -160,10 +140,7 @@ export function ProductConversionForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof ConversionData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setConversionData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {

@@ -22,15 +22,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Expense, ExpenseFormData } from "@/types/production";
-
-interface ExpenseFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (expenseData: ExpenseFormData) => Promise<void>;
-  editingExpense?: Expense | null;
-  isLoading?: boolean;
-}
 
 export function ExpenseForm({
   isOpen,
@@ -38,8 +29,8 @@ export function ExpenseForm({
   onSubmit,
   editingExpense,
   isLoading = false,
-}: ExpenseFormProps) {
-  const [formData, setFormData] = useState<ExpenseFormData>(() => ({
+}) {
+  const [formData, setFormData] = useState(() => ({
     expense_date: "",
     expense_type: "",
     cost: 0,
@@ -50,7 +41,7 @@ export function ExpenseForm({
     payment_mode: "",
   }));
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (editingExpense) {
@@ -83,8 +74,8 @@ export function ExpenseForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.expense_date) {
       newErrors.expense_date = "Expense date is required";
@@ -102,7 +93,7 @@ export function ExpenseForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -116,11 +107,11 @@ export function ExpenseForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save expense. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         errorMessage = error.message;
       }
 
@@ -131,10 +122,7 @@ export function ExpenseForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof ExpenseFormData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {

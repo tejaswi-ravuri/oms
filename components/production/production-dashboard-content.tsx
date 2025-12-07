@@ -37,20 +37,11 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import { ProductionDashboardData } from "@/types/production";
 
-interface ProductionDashboardContentProps {
-  analyticsData: ProductionDashboardData | null;
-}
-
-export function ProductionDashboardContent({
-  analyticsData,
-}: ProductionDashboardContentProps) {
+export function ProductionDashboardContent({ analyticsData }) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeView, setActiveView] = useState<
-    "overview" | "purchases" | "weaving" | "stitching" | "inventory"
-  >("overview");
+  const [activeView, setActiveView] = useState("overview");
 
   // Calculate summary metrics
   const totalRawMaterial = useMemo(() => {
@@ -125,7 +116,7 @@ export function ProductionDashboardContent({
     return goodRate?.value || 0;
   }, [analyticsData]);
 
-  const handleNavigation = (path: string) => {
+  const handleNavigation = (path) => {
     router.push(path);
   };
 

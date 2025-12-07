@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
-import { Database } from "@/types/database";
 import {
   Card,
   CardContent,
@@ -31,67 +30,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-type IsteachingChallan =
-  Database["public"]["Tables"]["stitching_challans"]["Row"] & {
-    ledgers?: {
-      business_name: string;
-    };
-    products?: {
-      product_name: string;
-      product_sku: string;
-      cost_price?: number;
-      selling_price?: number;
-    };
-  } & {
-    inventory_classification:
-      | "good"
-      | "bad"
-      | "wastage"
-      | "shorting"
-      | "unclassified"
-      | null;
-    top_qty: number | null;
-    bottom_qty: number | null;
-    both_selected: boolean | null;
-  };
-
-type UserRole = Database["public"]["Tables"]["profiles"]["Row"]["user_role"];
-
-interface InventoryDashboardProps {
-  userRole: UserRole;
-}
-
-interface InventoryAlert {
-  id: string;
-  type: "low_stock" | "high_wastage" | "cost_anomaly" | "quality_issue";
-  title: string;
-  description: string;
-  severity: "low" | "medium" | "high" | "critical";
-  itemId?: number;
-  itemName?: string;
-  timestamp: string;
-  acknowledged: boolean;
-}
-
-interface InventoryMetrics {
-  totalItems: number;
-  totalValue: number;
-  goodInventory: number;
-  badInventory: number;
-  wastageInventory: number;
-  shortageInventory: number;
-  lowStockItems: number;
-  criticalStockItems: number;
-  totalCost: number;
-  potentialRevenue: number;
-  wastageCost: number;
-  qualityScore: number;
-}
-
-export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
+export function InventoryDashboard({ userRole }) {
   const router = useRouter();
-  const [metrics, setMetrics] = useState<InventoryMetrics | null>(null);
-  const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
+  const [metrics, setMetrics] = useState(null);
+  const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("overview");
 
@@ -114,7 +56,7 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
 
       if (error) throw error;
 
-      const processedData = inventoryData as any[];
+      const processedData = inventoryData;
 
       // Calculate metrics
       const calculatedMetrics = calculateMetrics(processedData);
@@ -131,9 +73,9 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
     }
   };
 
-  const calculateMetrics = (data: any[]): InventoryMetrics => {
+  const calculateMetrics = (data) => {
     // Determine classification based on quality field since inventory_classification doesn't exist
-    const getClassification = (item: any) => {
+    const getClassification = (item) => {
       const quality = (item.quality || "").toLowerCase();
       if (["a", "b", "premium", "good"].includes(quality)) return "good";
       if (["c", "d", "poor", "bad"].includes(quality)) return "bad";
@@ -189,11 +131,8 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
     };
   };
 
-  const generateAlerts = (
-    data: IsteachingChallan[],
-    metrics: InventoryMetrics
-  ): InventoryAlert[] => {
-    const alerts: InventoryAlert[] = [];
+  const generateAlerts = (data, metrics) => {
+    const alerts = [];
     const now = new Date().toISOString();
 
     // Low stock alerts
@@ -265,7 +204,7 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
     });
   };
 
-  const handleAcknowledgeAlert = async (alertId: string) => {
+  const handleAcknowledgeAlert = async (alertId) => {
     setAlerts((prev) =>
       prev.map((alert) =>
         alert.id === alertId ? { ...alert, acknowledged: true } : alert
@@ -274,7 +213,7 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
     toast.success("Alert acknowledged");
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity) => {
     switch (severity) {
       case "critical":
         return "text-red-600 bg-red-50 border-red-200";
@@ -289,7 +228,7 @@ export function InventoryDashboard({ userRole }: InventoryDashboardProps) {
     }
   };
 
-  const getAlertIcon = (type: string) => {
+  const getAlertIcon = (type) => {
     switch (type) {
       case "low_stock":
         return <Package className="h-4 w-4" />;

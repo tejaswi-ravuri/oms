@@ -22,21 +22,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import {
-  PaymentVoucher,
-  PaymentVoucherFormData,
-  Ledger,
-} from "@/types/production";
-import { createClient } from "@/lib/supabase/client";
 
-interface PaymentVoucherFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (voucherData: PaymentVoucherFormData) => Promise<void>;
-  editingVoucher?: PaymentVoucher | null;
-  isLoading?: boolean;
-  ledgers?: Ledger[]; // Optional, will fetch if not provided
-}
+import { createClient } from "@/lib/supabase/client";
 
 export function PaymentVoucherForm({
   isOpen,
@@ -45,8 +32,8 @@ export function PaymentVoucherForm({
   editingVoucher,
   isLoading = false,
   ledgers = [],
-}: PaymentVoucherFormProps) {
-  const [formData, setFormData] = useState<PaymentVoucherFormData>(() => ({
+}) {
+  const [formData, setFormData] = useState(() => ({
     voucher_no: "",
     payment_date: "",
     ledger_id: "",
@@ -57,8 +44,8 @@ export function PaymentVoucherForm({
     remarks: "",
   }));
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [ledgersList, setLedgersList] = useState<Ledger[]>(ledgers);
+  const [errors, setErrors] = useState({});
+  const [ledgersList, setLedgersList] = useState(ledgers);
   const [loadingLedgers, setLoadingLedgers] = useState(false);
 
   // Fetch ledgers when dialog opens
@@ -124,22 +111,22 @@ export function PaymentVoucherForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.payment_date) {
       newErrors.payment_date = "Payment date is required";
     }
 
-    if (!formData.voucher_no.trim()) {
+    if (!formData.voucher_no || formData.voucher_no.trim() === "") {
       newErrors.voucher_no = "Voucher number is required";
     }
 
-    if (!formData.payment_mode.trim()) {
+    if (!formData.payment_mode || formData.payment_mode.trim() === "") {
       newErrors.payment_mode = "Payment mode is required";
     }
 
-    if (!formData.amount || formData.amount <= 0) {
+    if (!formData.amount || Number(formData.amount) <= 0) {
       newErrors.amount = "Amount must be greater than 0";
     }
 
@@ -147,7 +134,7 @@ export function PaymentVoucherForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -161,7 +148,7 @@ export function PaymentVoucherForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save payment voucher. Please try again.";
 
@@ -176,10 +163,7 @@ export function PaymentVoucherForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof PaymentVoucherFormData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {

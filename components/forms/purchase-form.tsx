@@ -22,17 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Purchase, PurchaseFormData, Ledger } from "@/types/production";
 import { createClient } from "@/lib/supabase/client";
-
-interface PurchaseFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (purchaseData: PurchaseFormData) => Promise<void>;
-  editingPurchase?: Purchase | null;
-  isLoading?: boolean;
-  vendors?: Ledger[]; // Optional, will fetch if not provided
-}
 
 export function PurchaseForm({
   isOpen,
@@ -41,10 +31,10 @@ export function PurchaseForm({
   editingPurchase,
   isLoading = false,
   vendors = [],
-}: PurchaseFormProps) {
-  const [vendorsList, setVendorsList] = useState<Ledger[]>(vendors);
+}) {
+  const [vendorsList, setVendorsList] = useState(vendors);
   const [loadingVendors, setLoadingVendors] = useState(false);
-  const [formData, setFormData] = useState<PurchaseFormData>({
+  const [formData, setFormData] = useState({
     purchase_date: "",
     purchase_no: "",
     vendor_ledger_id: "",
@@ -57,7 +47,7 @@ export function PurchaseForm({
     remarks: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   // Fetch vendors when dialog opens
   useEffect(() => {
@@ -124,8 +114,8 @@ export function PurchaseForm({
     setErrors({});
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.purchase_date) {
       newErrors.purchase_date = "Purchase date is required";
@@ -151,7 +141,7 @@ export function PurchaseForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -173,7 +163,7 @@ export function PurchaseForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save purchase. Please try again.";
 
@@ -192,10 +182,7 @@ export function PurchaseForm({
     }
   };
 
-  const handleInputChange = (
-    field: keyof PurchaseFormData,
-    value: string | number
-  ) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Auto-calculate total amount when meters or rate changes
@@ -387,7 +374,7 @@ export function PurchaseForm({
               <Label htmlFor="gst_percent">GST Percentage</Label>
               <Select
                 value={formData.gst_percent}
-                onValueChange={(value: any) =>
+                onValueChange={(value) =>
                   handleInputChange("gst_percent", value)
                 }
               >

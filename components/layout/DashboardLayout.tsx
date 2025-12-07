@@ -5,28 +5,7 @@ import { Sidebar } from "./Sidebar";
 import Header from "./Navbar";
 import { cn } from "@/lib/utils";
 
-// TypeScript types
-type Profile = {
-  id: string;
-  user_role:
-    | "Admin"
-    | "Inventory Manager"
-    | "Production Manager"
-    | "Order Managing Executive";
-  user_status: string;
-  full_name?: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  profile_photo?: string;
-};
-
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-  profile: Partial<Profile>;
-}
-
-export function DashboardLayout({ children, profile }: DashboardLayoutProps) {
+export function DashboardLayout({ children, profile }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);

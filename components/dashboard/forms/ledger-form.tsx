@@ -22,16 +22,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, Upload } from "lucide-react";
-import { Ledger, LedgerFormData } from "@/types/ledgers";
-
-interface LedgerFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (ledgerData: LedgerFormData) => Promise<void>;
-  editingLedger?: Ledger | null;
-  isLoading?: boolean;
-  parentLedgers?: Ledger[];
-}
 
 export function LedgerForm({
   isOpen,
@@ -40,8 +30,8 @@ export function LedgerForm({
   editingLedger,
   isLoading = false,
   parentLedgers = [],
-}: LedgerFormProps) {
-  const [formData, setFormData] = useState<LedgerFormData>({
+}) {
+  const [formData, setFormData] = useState({
     business_name: "",
     contact_person_name: "",
     mobile_number: "",
@@ -57,9 +47,9 @@ export function LedgerForm({
     business_logo: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [errors, setErrors] = useState({});
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
 
   useEffect(() => {
     if (editingLedger) {
@@ -105,8 +95,8 @@ export function LedgerForm({
     setLogoPreview("");
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.business_name.trim()) {
       newErrors.business_name = "Business name is required";
@@ -143,7 +133,7 @@ export function LedgerForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -173,11 +163,11 @@ export function LedgerForm({
         resetForm();
       }
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Form submission error:", error);
       let errorMessage = "Failed to save ledger. Please try again.";
 
-      if (error instanceof Error) {
+      if (error) {
         if (error.message.includes("duplicate key")) {
           errorMessage = "A business with this name already exists.";
         }
@@ -190,14 +180,14 @@ export function LedgerForm({
     }
   };
 
-  const handleInputChange = (field: keyof LedgerFormData, value: any) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -216,7 +206,7 @@ export function LedgerForm({
       setLogoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
+        setLogoPreview(reader.result);
       };
       reader.readAsDataURL(file);
       setErrors({ ...errors, business_logo: "" });

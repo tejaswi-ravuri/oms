@@ -14,32 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, LogOut, User, Settings } from "lucide-react";
-import { CurrentDateDisplay } from "@/components/ui/date-display";
 import { GlobalSearch, useGlobalSearch } from "@/components/ui/global-search";
-import { cn } from "@/lib/utils";
 
-// TypeScript types
-type Profile = {
-  id: string;
-  user_role:
-    | "Admin"
-    | "Inventory Manager"
-    | "Production Manager"
-    | "Order Managing Executive";
-  user_status: string;
-  full_name?: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  profile_photo?: string;
-};
-
-interface HeaderProps {
-  profile: Partial<Profile>;
-  onMenuClick: () => void;
-}
-
-export function Header({ profile, onMenuClick }: HeaderProps) {
+export function Header({ profile, onMenuClick }) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -69,11 +46,7 @@ export function Header({ profile, onMenuClick }: HeaderProps) {
     }
   };
 
-  const getInitials = (
-    firstName?: string | null,
-    lastName?: string | null,
-    fullName?: string | null
-  ) => {
+  const getInitials = (firstName, lastName, fullName) => {
     if (firstName && lastName) {
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     }

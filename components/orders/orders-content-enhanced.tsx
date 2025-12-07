@@ -14,59 +14,22 @@ import {
   Upload,
   RefreshCw,
 } from "lucide-react";
-import { Database } from "@/types/database";
 // import toast from "react-hot-toast"; // Commented out as it might not be installed
 
 // Simple toast replacement
 const toast = {
-  success: (message: string) => {
+  success: (message) => {
     // Simple alert replacement for now
     console.log("SUCCESS:", message);
     // In a real implementation, you would use a proper toast library
   },
-  error: (message: string) => {
+  error: (message) => {
     console.error("ERROR:", message);
     // In a real implementation, you would use a proper toast library
   },
 };
 
-type SalesOrder = {
-  id: number;
-  platform: string;
-  platform_order_id: string;
-  customer_name: string;
-  customer_email?: string;
-  customer_phone?: string;
-  total_amount: number;
-  order_status: string;
-  payment_status: string;
-  payment_method?: string;
-  order_date: string;
-  tracking_number?: string;
-  carrier?: string;
-  order_items: Array<{
-    product_name: string;
-    quantity: number;
-    price: number;
-  }>;
-  created_at: string;
-  updated_at: string;
-};
-
-type UserRole = Database["public"]["Tables"]["profiles"]["Row"]["user_role"];
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
-interface OrdersContentProps {
-  orders: SalesOrder[];
-  userRole: UserRole;
-  profile: Profile;
-}
-
-export function OrdersContentEnhanced({
-  orders,
-  userRole,
-  profile,
-}: OrdersContentProps) {
+export function OrdersContentEnhanced({ orders, userRole, profile }) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -75,7 +38,7 @@ export function OrdersContentEnhanced({
     userRole === "Admin" || userRole === "Order Managing Executive";
 
   // Status badge renderer
-  const getStatusBadge = (status: string | null) => {
+  const getStatusBadge = (status) => {
     const statusColors = {
       pending: "bg-yellow-100 text-yellow-800",
       processing: "bg-blue-100 text-blue-800",
@@ -86,19 +49,14 @@ export function OrdersContentEnhanced({
     };
 
     return (
-      <Badge
-        className={
-          statusColors[status as keyof typeof statusColors] ||
-          "bg-gray-100 text-gray-800"
-        }
-      >
+      <Badge className={statusColors[status] || "bg-gray-100 text-gray-800"}>
         {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
       </Badge>
     );
   };
 
   // Platform icon renderer
-  const getPlatformIcon = (platform: string) => {
+  const getPlatformIcon = (platform) => {
     const platformColors = {
       amazon: "bg-orange-500",
       flipkart: "bg-blue-500",
@@ -110,8 +68,7 @@ export function OrdersContentEnhanced({
       <div className="flex items-center gap-2">
         <div
           className={`w-3 h-3 rounded-full ${
-            platformColors[platform as keyof typeof platformColors] ||
-            "bg-gray-500"
+            platformColors[platform] || "bg-gray-500"
           }`}
         />
         <span className="capitalize">{platform}</span>
@@ -120,7 +77,7 @@ export function OrdersContentEnhanced({
   };
 
   // Date renderer
-  const renderDate = (date: string | null, includeIcon = true) => {
+  const renderDate = (date, includeIcon = true) => {
     if (!date) {
       return <span className="text-gray-400">N/A</span>;
     }
@@ -165,7 +122,7 @@ export function OrdersContentEnhanced({
       sortable: true,
       filterable: true,
       filterType: "text",
-      render: (name: string, record: SalesOrder) => (
+      render: (name, record) => (
         <div>
           <div className="font-medium">{name}</div>
           <div className="text-sm text-gray-500">{record.customer_email}</div>
@@ -178,7 +135,7 @@ export function OrdersContentEnhanced({
       sortable: true,
       filterable: true,
       filterType: "number",
-      render: (amount: number) => (
+      render: (amount) => (
         <span className="font-medium">₹{amount.toFixed(2)}</span>
       ),
     },
@@ -203,7 +160,7 @@ export function OrdersContentEnhanced({
       sortable: true,
       filterable: true,
       filterType: "date",
-      render: (date: string | null) => renderDate(date),
+      render: (date) => renderDate(date),
     },
   ];
 
@@ -212,7 +169,7 @@ export function OrdersContentEnhanced({
     {
       label: "View Details",
       icon: <Eye className="mr-2 h-4 w-4" />,
-      onClick: (order: SalesOrder) => {
+      onClick: (order) => {
         // TODO: Navigate to order details page
         console.log("View order details:", order.id);
       },
@@ -222,7 +179,7 @@ export function OrdersContentEnhanced({
           {
             label: "Process Order",
             icon: <Package className="mr-2 h-4 w-4" />,
-            onClick: (order: SalesOrder) => {
+            onClick: (order) => {
               // TODO: Navigate to order processing page
               console.log("Process order:", order.id);
             },
@@ -232,7 +189,7 @@ export function OrdersContentEnhanced({
     {
       label: `View on Platform`,
       icon: <ExternalLink className="mr-2 h-4 w-4" />,
-      onClick: (order: SalesOrder) => {
+      onClick: (order) => {
         // TODO: Open order in platform
         console.log(
           "View on platform:",
@@ -249,7 +206,7 @@ export function OrdersContentEnhanced({
         {
           label: "Process Selected",
           icon: <Package className="mr-2 h-4 w-4" />,
-          onClick: (selectedOrders: SalesOrder[]) => {
+          onClick: (selectedOrders) => {
             // TODO: Bulk process orders
             console.log(
               "Bulk process orders:",
@@ -257,12 +214,12 @@ export function OrdersContentEnhanced({
             );
             toast.success(`Processing ${selectedOrders.length} orders`);
           },
-          disabled: (selected: SalesOrder[]) => selected.length === 0,
+          disabled: (selected) => selected.length === 0,
         },
         {
           label: "Sync Selected",
           icon: <RefreshCw className="mr-2 h-4 w-4" />,
-          onClick: (selectedOrders: SalesOrder[]) => {
+          onClick: (selectedOrders) => {
             // TODO: Bulk sync orders
             console.log(
               "Bulk sync orders:",
@@ -270,13 +227,13 @@ export function OrdersContentEnhanced({
             );
             toast.success(`Syncing ${selectedOrders.length} orders`);
           },
-          disabled: (selected: SalesOrder[]) => selected.length === 0,
+          disabled: (selected) => selected.length === 0,
         },
       ]
     : [];
 
   // Handle search
-  const handleSearch = (query: string) => {
+  const handleSearch = (query) => {
     setSearchTerm(query);
   };
 
@@ -297,10 +254,7 @@ export function OrdersContentEnhanced({
   };
 
   // Handle export
-  const handleExport = async (
-    format: "csv" | "excel" | "pdf",
-    selectedOnly?: boolean
-  ) => {
+  const handleExport = async (format, selectedOnly) => {
     try {
       const dataToExport = selectedOnly
         ? orders.filter((o) => false) // TODO: Implement selected rows tracking
@@ -355,7 +309,7 @@ export function OrdersContentEnhanced({
   };
 
   // Handle file upload
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file) => {
     try {
       // TODO: Implement actual upload logic for order import
       toast.success("Orders imported successfully");

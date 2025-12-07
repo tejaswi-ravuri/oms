@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
-import { Database } from "@/types/database";
 import {
   Card,
   CardContent,
@@ -51,42 +50,16 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-type Product = Database["public"]["Tables"]["products"]["Row"];
-type IsstitchingChallan =
-  Database["public"]["Tables"]["stitching_challans"]["Row"] & {
-    products?: Product;
-    ledgers?: {
-      business_name: string;
-    };
-  };
-
-type UserRole = Database["public"]["Tables"]["profiles"]["Row"]["user_role"];
-
-interface CostAdjustmentPanelProps {
-  userRole: UserRole;
-}
-
-interface CostUpdate {
-  productId: number;
-  costPrice: number;
-  sellingPrice: number;
-  margin: number;
-}
-
-export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
+export function CostAdjustmentPanel({ userRole }) {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [inventoryItems, setInventoryItems] = useState<IsstitchingChallan[]>(
-    []
-  );
-  const [selectedProduct, setSelectedProduct] = useState<string>("");
-  const [costUpdates, setCostUpdates] = useState<CostUpdate[]>([]);
+  const [products, setProducts] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [costUpdates, setCostUpdates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showBulkUpdateDialog, setShowBulkUpdateDialog] = useState(false);
-  const [bulkUpdateType, setBulkUpdateType] = useState<"percentage" | "fixed">(
-    "percentage"
-  );
+  const [bulkUpdateType, setBulkUpdateType] = useState("percentage");
   const [bulkUpdateValue, setBulkUpdateValue] = useState("");
 
   const canManage = userRole === "Admin" || userRole === "Inventory Manager";
@@ -130,16 +103,12 @@ export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
     }
   };
 
-  const calculateMargin = (costPrice: number, sellingPrice: number): number => {
+  const calculateMargin = (costPrice, sellingPrice) => {
     if (costPrice === 0) return 0;
     return ((sellingPrice - costPrice) / costPrice) * 100;
   };
 
-  const handleCostUpdate = (
-    productId: number,
-    field: "costPrice" | "sellingPrice",
-    value: string
-  ) => {
+  const handleCostUpdate = (productId, field, value) => {
     const numValue = parseFloat(value) || 0;
 
     setCostUpdates((prev) => {
@@ -160,7 +129,7 @@ export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
         });
       } else {
         const product = products.find((p) => p.id === productId);
-        const newUpdate: CostUpdate = {
+        const newUpdate = {
           productId,
           costPrice:
             field === "costPrice" ? numValue : product?.manufacturing_cost || 0,
@@ -223,7 +192,7 @@ export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
     }
 
     const updateValue = parseFloat(bulkUpdateValue);
-    const updates: CostUpdate[] = [];
+    const updates = [];
 
     products.forEach((product) => {
       let newCostPrice = product.manufacturing_cost || 0;
@@ -254,14 +223,14 @@ export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
     toast.success(`Prepared bulk update for ${updates.length} products`);
   };
 
-  const getMarginColor = (margin: number) => {
+  const getMarginColor = (margin) => {
     if (margin >= 50) return "text-green-600";
     if (margin >= 30) return "text-yellow-600";
     if (margin >= 10) return "text-orange-600";
     return "text-red-600";
   };
 
-  const getMarginBadge = (margin: number) => {
+  const getMarginBadge = (margin) => {
     if (margin >= 50)
       return <Badge className="bg-green-100 text-green-800">Excellent</Badge>;
     if (margin >= 30)
@@ -272,13 +241,13 @@ export function CostAdjustmentPanel({ userRole }: CostAdjustmentPanelProps) {
   };
 
   const totalInventoryValue = inventoryItems.reduce((sum, item) => {
-    const cost = (item as any).price_per_piece || 0;
+    const cost = item.price_per_piece || 0;
     const quantity = item.quantity || 0;
     return sum + cost * quantity;
   }, 0);
 
   const totalPotentialRevenue = inventoryItems.reduce((sum, item) => {
-    const price = (item as any).price_per_piece || 0;
+    const price = item.price_per_piece || 0;
     const quantity = item.quantity || 0;
     return sum + price * quantity;
   }, 0);

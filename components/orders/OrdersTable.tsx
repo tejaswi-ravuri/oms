@@ -15,31 +15,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Download, Package } from "lucide-react";
 
-interface Order {
-  id: string;
-  platform: string;
-  platform_order_id: string;
-  customer_name: string;
-  customer_email?: string;
-  customer_phone?: string;
-  total_amount: number;
-  order_status: string;
-  payment_status: string;
-  payment_method?: string;
-  order_date: string;
-  tracking_number?: string;
-  order_items?: any;
-}
-
-interface OrdersTableProps {
-  title: string;
-  data: Order[];
-  platform?: string;
-  loading?: boolean;
-  error?: string;
-  onRefresh?: () => void;
-}
-
 export default function OrdersTable({
   title,
   data,
@@ -47,8 +22,8 @@ export default function OrdersTable({
   loading = false,
   error,
   onRefresh,
-}: OrdersTableProps) {
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+}) {
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -68,7 +43,7 @@ export default function OrdersTable({
   });
 
   // Handle order selection
-  const handleOrderSelect = (orderId: string) => {
+  const handleOrderSelect = (orderId) => {
     setSelectedOrders((prev) =>
       prev.includes(orderId)
         ? prev.filter((id) => id !== orderId)
@@ -162,8 +137,8 @@ export default function OrdersTable({
   // Get unique statuses for filter dropdown
   const uniqueStatuses = [...new Set(data.map((order) => order.order_status))];
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
+  const getStatusBadge = (status) => {
+    const variants = {
       delivered: "bg-green-100 text-green-700",
       shipped: "bg-blue-100 text-blue-700",
       processing: "bg-yellow-100 text-yellow-700",
@@ -184,8 +159,8 @@ export default function OrdersTable({
     );
   };
 
-  const getPaymentBadge = (status: string) => {
-    const variants: Record<string, string> = {
+  const getPaymentBadge = (status) => {
+    const variants = {
       completed: "bg-green-100 text-green-700",
       pending: "bg-yellow-100 text-yellow-700",
       failed: "bg-red-100 text-red-700",
@@ -201,8 +176,8 @@ export default function OrdersTable({
     );
   };
 
-  const getPlatformBadge = (plat: string) => {
-    const variants: Record<string, string> = {
+  const getPlatformBadge = (plat) => {
+    const variants = {
       flipkart: "bg-blue-100 text-blue-700",
       amazon: "bg-orange-100 text-orange-700",
       myntra: "bg-pink-100 text-pink-700",

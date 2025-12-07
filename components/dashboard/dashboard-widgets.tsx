@@ -52,40 +52,8 @@ import { supabase } from "@/lib/supabase/client";
 // import { formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
 
-interface DashboardStats {
-  totalOrders: number;
-  totalRevenue: number;
-  totalProducts: number;
-  totalPartners: number;
-  todayOrders: number;
-  todayRevenue: number;
-  todayExpenses: number;
-  pendingOrders: number;
-  completedOrders: number;
-}
-
-interface ChartData {
-  monthly: Array<{
-    month: string;
-    orders: number;
-    revenue: number;
-    expenses: number;
-  }>;
-  platformDistribution: Array<{ name: string; value: number; color: string }>;
-  orderStatus: Array<{ name: string; value: number; color: string }>;
-  weeklyTrend: Array<{ day: string; orders: number; revenue: number }>;
-}
-
-interface DashboardWidgetsProps {
-  userRole: string;
-  className?: string;
-}
-
-export function DashboardWidgets({
-  userRole,
-  className = "",
-}: DashboardWidgetsProps) {
-  const [stats, setStats] = useState<DashboardStats>({
+export function DashboardWidgets({ userRole, className = "" }) {
+  const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
     totalProducts: 0,
@@ -96,7 +64,7 @@ export function DashboardWidgets({
     pendingOrders: 0,
     completedOrders: 0,
   });
-  const [chartData, setChartData] = useState<ChartData>({
+  const [chartData, setChartData] = useState({
     monthly: [],
     platformDistribution: [],
     orderStatus: [],
@@ -231,14 +199,6 @@ export function DashboardWidgets({
     trend,
     valuePrefix = "",
     color = "default",
-  }: {
-    title: string;
-    value: number | string;
-    description: string;
-    icon?: any;
-    trend?: { value: number; isPositive: boolean };
-    valuePrefix?: string;
-    color?: "default" | "green" | "red" | "blue";
   }) => {
     const colorClasses = {
       default:
