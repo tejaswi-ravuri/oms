@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/client";
 import {
   Loader2,
@@ -100,24 +99,21 @@ const getErrorMessage = (error) => {
 };
 
 export default function SignupPage() {
-  const [state, setState] =
-    useState <
-    SignupState >
-    {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      userRole: "",
-      loading: false,
-      error: "",
-      success: "",
-      showPassword: false,
-      showConfirmPassword: false,
-      agreed: false,
-      fieldErrors: {},
-    };
+  const [state, setState] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    userRole: "",
+    loading: false,
+    error: "",
+    success: "",
+    showPassword: false,
+    showConfirmPassword: false,
+    agreed: false,
+    fieldErrors: {},
+  });
 
   const router = useRouter();
 
